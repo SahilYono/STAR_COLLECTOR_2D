@@ -5,18 +5,14 @@ public class Star : MonoBehaviour
 {
     public bool isBonus = false;
     public int points = 10;             
-
-    
     [Header("Bonus Settings (ignored if not bonus)")]
     public float lifetime = 5f;
     public float scaleStepTime = 0.15f;
-
     private float[] pulseScales = { 2f, 1.75f, 1.5f, 1.25f, 1f, 0.75f, 1f, 1.25f, 1.5f, 1.75f };
     private int scaleIndex = 0;
     private float scaleTimer = 0f;
     private float lifeTimer = 0f;
 
-    
     [HideInInspector] public StarSpawner spawner;
 
     void OnEnable()
