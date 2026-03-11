@@ -42,7 +42,7 @@ public class UIManager : MonoBehaviour
     void UpdateScoreUI()
     {
         if (scoreText != null)
-            scoreText.text = "" + score;
+            scoreText.text = "Score: " + score;
     }
 
     public void ShowGameOver()
@@ -63,7 +63,7 @@ public class UIManager : MonoBehaviour
             gameOverScoreText.text = "Score: " + score;
 
         if (highScoreText != null)
-            highScoreText.text = "High Score: " + savedHigh;
+            highScoreText.text = "Best: " + savedHigh;
 
         if (gameOverPanel != null)
             gameOverPanel.SetActive(true);

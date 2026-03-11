@@ -1,108 +1,83 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
     [Header("References")]
     public Transform player;
-    public BoxCollider2D detectionArea; // Same box collider as the patrol area
+    public BoxCollider2D patrolArea;
 
     [Header("Speed")]
-    public float patrolSpeed = 2f;
-    // Chase speed = patrolSpeed * 2 (auto)
+    public float patrolSpeed = 2f;      // Chase = patrolSpeed x 2 (auto)
 
-    // Patrol border points (TL -> TR -> BR -> BL -> TL clockwise)
-    private Vector2[] borderPoints = new Vector2[4];
-    private int currentPatrolIndex = 0;
+    private Vector2[] corners = new Vector2[4];
+    private int cornerIndex = 0;
+    private bool isChasing = false;
+    private bool wasChasing = false;
 
-    private enum State { Patrol, Chase }
-    private State state = State.Patrol;
-
-    private bool playerInside = false;
-
+    // ── Init ──────────────────────────────────────────────
     void Start()
     {
-        BuildBorderPoints();
-        // Start at nearest border point
-        currentPatrolIndex = GetNearestPointIndex();
-        transform.position = borderPoints[currentPatrolIndex];
+        Bounds b = patrolArea.bounds;
+        corners[0] = new Vector2(b.min.x, b.max.y); // Top-Left
+        corners[1] = new Vector2(b.max.x, b.max.y); // Top-Right
+        corners[2] = new Vector2(b.max.x, b.min.y); // Bottom-Right
+        corners[3] = new Vector2(b.min.x, b.min.y); // Bottom-Left
+
+        cornerIndex = NearestCorner();
+        transform.position = corners[cornerIndex];
     }
 
-    void BuildBorderPoints()
-    {
-        Bounds b = detectionArea.bounds;
-        // Clockwise: TL, TR, BR, BL
-        borderPoints[0] = new Vector2(b.min.x, b.max.y); // Top-Left
-        borderPoints[1] = new Vector2(b.max.x, b.max.y); // Top-Right
-        borderPoints[2] = new Vector2(b.max.x, b.min.y); // Bottom-Right
-        borderPoints[3] = new Vector2(b.min.x, b.min.y); // Bottom-Left
-    }
-
+    // ── Main Loop ─────────────────────────────────────────
     void Update()
     {
-        if (UIManager.Instance != null && UIManager.Instance.IsGameOver) return;
+        if (UIManager.Instance.IsGameOver) return;
 
-        // Check if player is inside detection area
-        playerInside = detectionArea.bounds.Contains(player.position);
+        isChasing = patrolArea.bounds.Contains(player.position);
 
-        if (playerInside)
-            state = State.Chase;
-        else
-            state = State.Patrol;
+        // Just stopped chasing → go back to nearest corner
+        if (wasChasing && !isChasing)
+            cornerIndex = NearestCorner();
 
-        if (state == State.Chase)
-            ChasePlayer();
-        else
-            PatrolBorder();
+        if (isChasing) Chase();
+        else Patrol();
+
+        wasChasing = isChasing;
     }
 
-    void PatrolBorder()
+    // ── Patrol clockwise along 4 corners ─────────────────
+    void Patrol()
     {
-        Vector2 target = borderPoints[currentPatrolIndex];
-        transform.position = Vector2.MoveTowards(transform.position, target, patrolSpeed * Time.deltaTime);
+        transform.position = Vector2.MoveTowards(
+            transform.position, corners[cornerIndex], patrolSpeed * Time.deltaTime);
 
-        if (Vector2.Distance(transform.position, target) < 0.05f)
-            currentPatrolIndex = (currentPatrolIndex + 1) % 4;
+        if (Vector2.Distance(transform.position, corners[cornerIndex]) < 0.05f)
+            cornerIndex = (cornerIndex + 1) % 4;
     }
 
-    void ChasePlayer()
+    // ── Chase player at 2x speed ──────────────────────────
+    void Chase()
     {
-        float chaseSpeed = patrolSpeed * 2f;
-        transform.position = Vector2.MoveTowards(transform.position, player.position, chaseSpeed * Time.deltaTime);
+        transform.position = Vector2.MoveTowards(
+            transform.position, player.position, patrolSpeed * 2f * Time.deltaTime);
     }
 
-    // When player leaves, snap enemy target to nearest border point
-    void ReturnToNearestPoint()
-    {
-        currentPatrolIndex = GetNearestPointIndex();
-    }
-
-    int GetNearestPointIndex()
+    // ── Returns index of closest corner ──────────────────
+    int NearestCorner()
     {
         int nearest = 0;
         float minDist = float.MaxValue;
-        for (int i = 0; i < borderPoints.Length; i++)
+        for (int i = 0; i < corners.Length; i++)
         {
-            float d = Vector2.Distance(transform.position, borderPoints[i]);
+            float d = Vector2.Distance(transform.position, corners[i]);
             if (d < minDist) { minDist = d; nearest = i; }
         }
         return nearest;
     }
 
-    // Detect state change to resume patrol from nearest point
-    private State lastState = State.Patrol;
-    void LateUpdate()
-    {
-        if (lastState == State.Chase && state == State.Patrol)
-            ReturnToNearestPoint();
-        lastState = state;
-    }
-
+    // ── Collision with player → Game Over ─────────────────
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
-        {
-            // Enemy collided with player -> Game Over
             UIManager.Instance.ShowGameOver();
-        }
     }
 }

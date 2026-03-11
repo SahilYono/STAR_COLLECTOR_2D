@@ -1,16 +1,13 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    [Header("Movement")]
     public float moveSpeed = 5f;
 
     [Header("Boundaries")]
     public float minX = -20f, maxX = 20f;
-    public float minY = -11f, maxY = 11f;
+    public float minY = -10f, maxY = 10f;
 
-    private Vector2 moveInput;
     private Rigidbody2D rb;
     private Animator animator;
 
@@ -22,33 +19,15 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        float h = 0f, v = 0f;
+        Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
+        rb.linearVelocity = input * moveSpeed;
 
-        if (Keyboard.current != null)
-        {
-            if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed) v = 1f;
-            if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed) v = -1f;
-            if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed) h = -1f;
-            if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed) h = 1f;
-        }
+        // Clamp to screen bounds
+        Vector3 p = transform.position;
+        p.x = Mathf.Clamp(p.x, minX, maxX);
+        p.y = Mathf.Clamp(p.y, minY, maxY);
+        transform.position = p;
 
-        moveInput = new Vector2(h, v).normalized;
-
-        if (h != 0)
-            transform.localScale = new Vector3(h < 0 ? -1 : 1, 1, 1);
-
-        if (animator != null)
-            animator.SetBool("isMoving", moveInput.magnitude > 0);
-    }
-
-    void FixedUpdate()
-    {
-        rb.linearVelocity = moveInput * moveSpeed;
-
-        // Clamp within screen bounds
-        Vector3 pos = transform.position;
-        pos.x = Mathf.Clamp(pos.x, minX, maxX);
-        pos.y = Mathf.Clamp(pos.y, minY, maxY);
-        transform.position = pos;
+        animator.SetBool("isMoving", input.magnitude > 0);
     }
 }
