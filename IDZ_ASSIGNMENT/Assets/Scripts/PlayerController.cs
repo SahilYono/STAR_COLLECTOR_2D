@@ -3,11 +3,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float moveSpeed = 5f;
-
-    [Header("Boundaries")]
     public float minX = -20f, maxX = 20f;
     public float minY = -10f, maxY = 10f;
-
     private Rigidbody2D rb;
     private Animator animator;
 
