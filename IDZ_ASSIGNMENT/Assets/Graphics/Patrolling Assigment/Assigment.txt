@@ -1,0 +1,36 @@
+Scenario:
+The player moves around the scene to collect stars while avoiding patrolling enemies. Enemies will chase the player when the player is nearby. The game tracks the score based on collected items.
+
+Player Behavior:
+1.Player can move using the keyboard (W / A / S / D).
+2.Player can collect stars in the scene.
+3.On collecting a star: Increase the score.
+
+Enemy Behavior:
+1.Each enemy has a list of patrol points.
+2.The enemy patrols between these patrol points in order.
+3.If the player enters the enemy detection area → switch to chase mode.
+4.When chasing: 
+	i)Speed increases (e.g., ×2).
+	ii)Enemy moves toward the player.
+5.If the player leaves the detection area →The enemy returns to the nearest patrol point and resumes patrolling.
+6.If the enemy collides with the player, the game should display a Game Over screen.
+
+Collectibles:
+1.Spawn stars randomly within the area (maximum 5 at a time).
+2.If the player collects a star, spawn a new star in the area.
+3.Use object pooling for spawning stars.
+4.Display the score at the top of the screen.
+
+
+Additional Notes:
+▪You may add additional features if needed.
+▪Reference video attached.
+
+--------------------------------------------------------------------------
+You have to send this project in a zip file containing 3 folders - 
+1) Assets
+2) Packages
+3) Project Settings
+
+Game orientation should be Landscape.
