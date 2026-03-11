@@ -5,15 +5,10 @@ using TMPro;
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance;
-
-    [Header("Gameplay UI")]
     public TextMeshProUGUI scoreText;
-
-    [Header("Game Over Panel")]
     public GameObject gameOverPanel;
-    public TextMeshProUGUI gameOverScoreText;   // Shows final score on panel
-    public TextMeshProUGUI highScoreText;       // Shows high score on panel
-
+    public TextMeshProUGUI gameOverScoreText;   
+    public TextMeshProUGUI highScoreText;       
     private int score = 0;
     private const string HighScoreKey = "HighScore";
 
@@ -58,7 +53,6 @@ public class UIManager : MonoBehaviour
             PlayerPrefs.Save();
         }
 
-        // Update Game Over panel texts
         if (gameOverScoreText != null)
             gameOverScoreText.text = "Score: " + score;
 
@@ -71,7 +65,6 @@ public class UIManager : MonoBehaviour
         Time.timeScale = 0f;
     }
 
-    // Assign this to the Restart Button OnClick()
     public void RestartGame()
     {
         Time.timeScale = 1f;
