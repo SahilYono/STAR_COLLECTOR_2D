@@ -1,16 +1,12 @@
 using UnityEngine;
 
-// Attach to BOTH star prefabs (regular and bonus)
-// Set isBonus = true on the bonus star prefab
+
 public class Star : MonoBehaviour
 {
-    [Header("Type")]
     public bool isBonus = false;
+    public int points = 10;             
 
-    [Header("Points")]
-    public int points = 10;             // Regular = 10, Bonus = 100
-
-    // Bonus only
+    
     [Header("Bonus Settings (ignored if not bonus)")]
     public float lifetime = 5f;
     public float scaleStepTime = 0.15f;
@@ -20,12 +16,12 @@ public class Star : MonoBehaviour
     private float scaleTimer = 0f;
     private float lifeTimer = 0f;
 
-    // Set by StarSpawner so item can call back for respawn
+    
     [HideInInspector] public StarSpawner spawner;
 
     void OnEnable()
     {
-        // Reset bonus state every time it activates
+        
         if (isBonus)
         {
             lifeTimer = 0f;
@@ -39,7 +35,7 @@ public class Star : MonoBehaviour
     {
         if (!isBonus) return;
 
-        // Auto-destroy after lifetime
+        
         lifeTimer += Time.deltaTime;
         if (lifeTimer >= lifetime)
         {
@@ -47,7 +43,7 @@ public class Star : MonoBehaviour
             return;
         }
 
-        // Pulse scale animation
+        
         scaleTimer += Time.deltaTime;
         if (scaleTimer >= scaleStepTime)
         {
